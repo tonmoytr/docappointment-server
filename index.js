@@ -1,0 +1,60 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+dotenv.config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+
+const uri = process.env.MONGODB_URI;
+
+const app = express();
+const PORT = process.env.PORT;
+
+app.use(cors());
+app.use(express.json());
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+async function run() {
+  try {
+    await client.connect();
+
+    const db = client.db("doc-appointment");
+    const allDoctorsCollection = db.collection("all-doctors");
+    const appointmentCollection = db.collection("appointments");
+
+    app.get("/all-doctors", async (req, res) => {
+      const doctors = await allDoctorsCollection.find().toArray();
+      res.json(doctors);
+    });
+
+    app.get("/all-doctors/:id", async (req, res) => {
+      const docId = req.params.id;
+      const query = { _id: new ObjectId(docId) };
+      const doctor = await allDoctorsCollection.findOne(query);
+
+      res.json(doctor);
+    });
+
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!",
+    );
+  } finally {
+    // Ensures that the client will close when you finish/error
+    // await client.close();
+  }
+}
+run().catch(console.dir);
+
+app.get("/", (req, res) => {
+  res.send("Server is running well");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
