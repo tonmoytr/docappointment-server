@@ -46,6 +46,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
+    
     // await client.close();
   }
 }
