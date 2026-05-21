@@ -68,6 +68,14 @@ async function run() {
       res.json(result);
     });
 
+    app.delete("/appointments/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await appointmentsCollection.deleteOne(query);
+
+      res.json(result);
+    });
+
     // ===============================================
 
     await client.db("admin").command({ ping: 1 });
