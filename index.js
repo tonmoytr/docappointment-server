@@ -27,6 +27,7 @@ async function run() {
 
     const allDoctorsCollection = db.collection("all-doctors");
     const appointmentsCollection = db.collection("appointments");
+    const usersCollection = db.collection("user");
 
     app.get("/all-doctors", async (req, res) => {
       const doctors = await allDoctorsCollection.find().toArray();
@@ -74,6 +75,45 @@ async function run() {
       const result = await appointmentsCollection.deleteOne(query);
 
       res.json(result);
+    });
+
+    // app.patch("/users/:id", async (req, res) => {
+    //   const { id } = req.params;
+    //   const updatedData = req.body;
+    //   const filter = { _id: new ObjectId(id) };
+
+    //   const result = await usersCollection.updateOne(filter, {
+    //     $set: updatedData,
+    //   });
+
+    //   res.json(result);
+    // });
+
+    app.patch("/users/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const updatedData = req.body;
+
+        const filter = { _id: new ObjectId(id) };
+
+        const result = await usersCollection.updateOne(filter, {
+          $set: updatedData,
+        });
+
+        if (result.matchedCount === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "User not found in this collection.",
+          });
+        }
+
+        return res.json({ success: true, result });
+      } catch (error) {
+        console.error(error);
+        return res
+          .status(500)
+          .json({ success: false, message: "Internal Server Error" });
+      }
     });
 
     // ===============================================
