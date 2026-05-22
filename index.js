@@ -37,7 +37,7 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const { payload } = await jwtVerify(token, JWKS);
-    // console.log("payloaaaaaaad", payload);
+
     req.user = payload;
     next();
   } catch (error) {
